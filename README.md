@@ -13,7 +13,7 @@ Users can select a maximum of 100 repositories fetched per page.
 
 
 ## requirements
-* Requires 14+ angular version.
+* Requires 17 angular version.
 * Install angular cli [Ref](https://angular.io/cli)
 * Install tailwind CSS [Ref](https://tailwindcss.com/docs/guides/angular)
 
