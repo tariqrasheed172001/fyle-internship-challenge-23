@@ -39,4 +39,10 @@ Users can select a maximum of 100 repositories fetched per page.
 ## Running Tests
 * To run unit tests for components and services, use the following command:
    `ng test`.
-* This command will execute the unit tests using Karma and Jasmine. The test results will be displayed in the terminal.
+* Executing this command will initiate the unit tests, and Karma will run them in the configured browsers. Jasmine will be the test framework used to define and run the tests.
+
+After running the tests, Karma will generate a coverage folder in the root directory of your project. Inside this coverage folder, you'll find an HTML file named index.html. This file contains detailed information about the code coverage of each component, service, and file in your project.
+
+To check the code coverage of your Angular project, you can open this index.html file in a web browser. It will display a detailed report showing which parts of your code are covered by the tests and which parts are not. This helps in identifying areas of your codebase that may need more testing or improvement.
+
+In summary, running ng test not only executes the unit tests but also generates a coverage report that can be viewed to analyze the code coverage of your Angular application.
