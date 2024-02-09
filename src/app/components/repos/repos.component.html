@@ -1,0 +1,169 @@
+<!-- Display toast for error messages -->
+<app-toast *ngIf="errorMessage" [errorMessage]="errorMessage"></app-toast>
+
+<!-- Label for select element -->
+<label
+  for="pageSize"
+  class="block mb-2 text-sm font-medium mx:w-28 text-gray-900 dark:text-white"
+></label>
+
+<!-- Select element for choosing number of repos per page -->
+<select
+  *ngIf="profile"
+  [(ngModel)]="perPage"
+  (ngModelChange)="onPerPageChange()"
+  id="pageSize"
+  class="w-1/2 ml-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+>
+  <option value="0">Choose Number of repos per page</option>
+  <option value="10" selected>10 repos per page (default)</option>
+  <option value="50">50 repos per page</option>
+  <option value="100">100 repos per page</option>
+</select>
+
+<!-- Loading animation when repos are being fetched -->
+<div
+  *ngIf="!repos && profile && !errorMessage"
+  role="status"
+  class="mt-6 space-y-8 animate-pulse md:space-y-0 md:space-x-8 rtl:space-x-reverse md:flex md:items-center"
+>
+  <!-- Placeholder for loading animation -->
+  <div class="w-full">
+    <div
+      class="h-12 bg-gray-300 rounded dark:bg-gray-700 max-w-[780px] mb-2.5"
+    ></div>
+    <div
+      class="h-12 bg-gray-300 rounded dark:bg-gray-700 max-w-[880px] mb-2.5"
+    ></div>
+    <div
+      class="h-12 bg-gray-300 rounded dark:bg-gray-700 max-w-[640px] mb-2.5"
+    ></div>
+  </div>
+</div>
+
+<!-- Display message when there are no repositories -->
+<app-no-repos *ngIf="profile && repos?.length == 0"></app-no-repos>
+
+<!-- Display repositories in a grid layout -->
+<div
+  *ngIf="repos && profile"
+  class="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-16"
+>
+  <!-- Display first half of repositories -->
+  <div class="justify-start">
+    <div *ngFor="let repo of repos?.slice(0, repos?.length / 2)">
+      <app-repocard *ngIf="repo" [repo]="repo"></app-repocard>
+    </div>
+  </div>
+
+  <!-- Display second half of repositories -->
+  <div class="justify-end">
+    <div *ngFor="let repo of repos?.slice(repos?.length / 2)">
+      <app-repocard *ngIf="repo" [repo]="repo"></app-repocard>
+    </div>
+  </div>
+</div>
+
+<!-- Pagination navigation -->
+<nav
+  *ngIf="profile && repos?.length > 0"
+  aria-label="Page navigation sm:w-28 example"
+  class="nav-bar cursor-pointer fixed bottom-0 left-0 right-0 bg-white z-50"
+>
+  <!-- Pagination controls -->
+  <ul class="flex items-center justify-center -space-x-px h-10 text-base">
+    <!-- Previous page button -->
+    <li>
+      <a
+        (click)="onPrevious()"
+        class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 border-gray-300 rounded-s-lg hover:bg-sky-600 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+      >
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+
+    <!-- Pagination page numbers -->
+    <li *ngFor="let page of getPagesWithEllipsis()">
+      <ng-container *ngIf="page !== null">
+        <a
+          [ngClass]="{
+            'z-10 bg-sky-600 text-slate-50 dark:bg-sky-600 dark:text-slate-50 font-bold':
+              isCurrentPage(page),
+            'bg-white': !isCurrentPage(page)
+          }"
+          class="flex items-center justify-center px-4 h-10 leading-tight text-sky-600 border border-gray-300 hover:bg-sky-600 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-sky-600 dark:hover:bg-sky-600 dark:hover:text-white dark:hover:font-bold"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </a>
+      </ng-container>
+      <!-- Display ellipsis when page is null -->
+      <ng-container *ngIf="page === null">
+        <span class="mx-2">...</span>
+      </ng-container>
+    </li>
+
+    <!-- Next page button -->
+    <li>
+      <a
+        (click)="onNext()"
+        class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-sky-600 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white text-sky-600 dark:text-sky-600 hover:text-gray-700"
+      >
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+  <!-- Pagination controls for smaller screens -->
+  <div
+    class="mx-2 sm:mx-2 lg:mx-44 flex flex-wrap items-center justify-between -space-x-px h-10 text-base mt-0"
+  >
+    <!-- Previous Button -->
+    <a
+      (click)="onPrevious()"
+      class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-slate-50 hover:text-sky-600 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-sky-600"
+    >
+      <svg
+        class="w-3.5 h-3.5 me-2 rtl:rotate-180"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 14 10"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M13 5H1m0 0 4 4M1 5l4-4"
+        />
+      </svg>
+      Older
+    </a>
+
+    <!-- Spacer to push "Newer" to the right -->
+    <div class="flex-grow"></div>
+
+    <!-- Next Button -->
+    <a
+      (click)="onNext()"
+      class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-slate-50 hover:text-sky-600 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-sky-600"
+    >
+      Newer
+      <svg
+        class="w-3.5 h-3.5 ms-2 rtl:rotate-180"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 14 10"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M1 5h12m0 0L9 1m4 4L9 9"
+        />
+      </svg>
+    </a>
+  </div>
+</nav>
